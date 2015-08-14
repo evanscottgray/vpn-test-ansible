@@ -20,7 +20,7 @@ You should do this the context of a virtualenv named `venv`.
 ```shell
 git clone git@github.com:evanscottgray/vpn-test-ansible.git
 cd vpn-test-ansible
-virtualenv venv
+virtualenv --prompt '(v-t-a)' venv
 source ./venv/bin/activate
 pip install -r requirements.txt
 ```

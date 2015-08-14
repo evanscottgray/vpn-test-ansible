@@ -1,0 +1,18 @@
+---
+- name: Create .rsdns directory
+  file: path=/root/.rsdns state=directory
+
+- name: place rs_dns tar
+  unarchive: src=rs_dns.tar dest=/root/.rsdns
+
+- name: create rs_dns.sh
+  template: src=rs_dns.sh.j2 dest=/root/.rsdns/rs_dns.sh mode=0700
+
+- name: install jq
+  apt: pkg=jq state=latest
+
+- name: insert rs_dns cron job.
+  cron: name="Update DNS" minute="*/5" job="/root/.rsdns/rs_dns.sh >>/var/log/cronrun 2>&1"
+
+- name: run rs_dns manually
+  shell: /root/.rsdns/rs_dns.sh executable=/bin/bash

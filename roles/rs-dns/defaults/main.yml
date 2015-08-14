@@ -1,0 +1,13 @@
+---
+# - rax_user: username that you use for rackspace cloud
+# - rax_api_key: api key that you use for rackspace cloud
+# - dns_domain: the domain that you have in your cloud account that you want to update
+# - dns_subdomain: the subdomain that you want these records to go into, 
+#                  e.g: somehost.{{ subdomain }}.{{ dns_domain }}
+# - dns_ttl: the ttl you want records to be created with, you should use a relatively low number.
+
+rax_user: # TODO
+rax_api_key: # TODO
+dns_domain: theip.xyz
+dns_subdomain: ansible
+dns_ttl: 300

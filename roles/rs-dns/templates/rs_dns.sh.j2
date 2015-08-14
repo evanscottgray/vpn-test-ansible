@@ -1,0 +1,52 @@
+# /bin/bash
+# rs_dns, a nifty wrapper around the wonderful rsdns library here https://github.com/linickx/rsdns
+# USAGE: rs_dns.sh <hostname> <IPv4 Address>
+set -x
+set -e
+
+
+# USER INPUT
+HOSTNAME="$1"
+IP_ADDR="$2"
+
+# RAX SETTINGS
+RAX_USER="{{ rax_user }}"
+RAX_API_KEY="{{ rax_api_key }}"
+
+
+# DOMAIN SETTINGS
+DOMAIN="{{ dns_domain }}"
+SUBDOMAIN="{{ dns_subdomain }}"
+TTL="{{ dns_ttl }}"
+
+# PATH SETTINGS
+ROLE_PATH="/root/.rsdns"
+
+if [ -z "$2" ]; then
+    echo 'NO IP PROVIDED, ATTEMPTING TO DISCOVER'
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        IP_ADDR=$(/sbin/ifconfig en0 | grep 'inet ' | cut -d ' ' -f 2)
+    else
+        IP_ADDR=$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+    fi
+
+    echo "FOUND |$IP_ADDR| for (en|eth)0"
+fi
+
+if [ -z "$2" ]; then
+    echo 'NO HOSTNAME PROVIDED, ATTEMPTING TO DISCOVER'
+    HOSTNAME=`hostname`
+    echo "FOUND |$HOSTNAME| for hostanme."
+fi
+
+
+# build final hostname string
+HOST="$HOSTNAME.$SUBDOMAIN.$DOMAIN"
+
+# set var required by rsdns to work when not in cwd.
+export RSPATH="$ROLE_PATH/rsdns"
+
+CREATE_CMD="$RSPATH/rsdns-a.sh -u $RAX_USER -a $RAX_API_KEY -n $HOST -d $DOMAIN -t $TTL -i $IP_ADDR"
+UPDATE_CMD="$RSPATH/rsdns-a.sh -u $RAX_USER -a $RAX_API_KEY -n $HOST -d $DOMAIN -t $TTL -i $IP_ADDR -U"
+
+eval $UPDATE_CMD || { echo 'DNS Update Failed, Attempting to Create Domain' ; eval $CREATE_CMD; }

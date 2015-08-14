@@ -1,0 +1,16 @@
+set nocompatible              " be iMproved, required
+set modeline
+set colorcolumn=75 " Add a graphical helper to keep code lines short.
+set nu
+set cursorline " yay now i can find where I am
+set incsearch " pls no case sensitive
+set hlsearch " pretty search
+
+syntax enable " this is super important
+
+set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+
+" Prevent Vim from clobbering the scrollback buffer. See
+" http://www.shallowsky.com/linux/noaltscreen.html
+set t_ti= t_te=

@@ -1,0 +1,6 @@
+# Rackspace API Credentials
+.raxpub
+venv/
+.venv/
+test_inv
+test_site.yml

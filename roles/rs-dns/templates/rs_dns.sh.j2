@@ -24,8 +24,14 @@ ROLE_PATH="/root/.rsdns"
 
 if [ -z "$2" ]; then
     echo 'NO IP PROVIDED, ATTEMPTING TO DISCOVER'
+
+    # Mac OSX
     if [[ "$OSTYPE" == "darwin"* ]]; then
         IP_ADDR=$(/sbin/ifconfig en0 | grep 'inet ' | cut -d ' ' -f 2)
+    # RHEL / etc
+    elif [[ "$OSTYPE" == "linux-gnu" ]]; then
+        IP_ADDR=$(/usr/sbin/ip -o -4 addr show dev eth0 | awk {'print $4'} | cut -d '/'  -f 1)
+    # all else
     else
         IP_ADDR=$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
     fi

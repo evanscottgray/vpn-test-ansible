@@ -1,2 +1,3 @@
 ---
 ssh_port: 22 
+default_ssh_port: 22

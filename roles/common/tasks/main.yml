@@ -5,19 +5,29 @@
     - "{{ ansible_os_family }}.yml"
     - default.yml
 
-- name: Install Packages Debian Based
+- name: Install Packages Ubuntu / apt
   apt: pkg={{ item }} state=latest
   with_items:
     - vim
     - fail2ban
   when: ansible_distribution == "Ubuntu"
 
-- name: Install Packages Fedora
+- name: Install Packages Fedora / dnf
   dnf: pkg={{ item }} state=latest
   with_items:
     - vim
     - fail2ban
   when: ansible_distribution == "Fedora"
+
+- name: be sure firewalld is started 
+  service: name=firewalld state=started
+  when: ansible_distribution == "Fedora"
+
+- name: add new ssh port for firewalld
+  firewalld: port={{ ssh_port }}/tcp permanent=true state=enabled
+  when: ansible_distribution == "Fedora" and ( ssh_port != default_ssh_port )
+  notify:
+    - restart firewalld
 
 - name: Add .vimrc
   copy: src=vimrc dest=/root/.vimrc
@@ -30,14 +40,14 @@
     - "public_keys/travis_personal_mbp.pub"
 
 - name: Write fail2ban config file for proper ssh port..
-  lineinfile: dest=/etc/fail2ban/jail.conf regexp="^port.+=\sssh" line="port    ={{ ssh_port }}" 
+  replace: dest=/etc/fail2ban/jail.conf regexp="^port.+=\sssh" replace="port    ={{ ssh_port }}" 
   notify:
     - restart fail2ban
 
-- name: Ensure fail2ban is running
-  service: name=fail2ban state=started
+- name: Ensure fail2ban is running and starts at boot.
+  service: name=fail2ban state=started enabled=yes
 
-- name: Write openssh config file.(Ubuntu) Yay key based auth..
+- name: Write openssh config file. Yay key based auth..
   template: src="openssh/sshd_config.j2" dest=/etc/ssh/sshd_config
   register: ssh_config
   notify:

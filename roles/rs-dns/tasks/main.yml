@@ -8,8 +8,15 @@
 - name: create rs_dns.sh
   template: src=rs_dns.sh.j2 dest=/root/.rsdns/rs_dns.sh mode=0700
 
-- name: install jq
-  apt: pkg=jq state=latest
+- name: install reqs debian
+  include: install_jq_debian.yml
+  when: ansible_distribution == "Ubuntu"
+
+- name: install jq rhel
+  include: install_jq_rhel.yml
+  when: ansible_distribution == "Fedora"
+
+
 
 - name: insert rs_dns cron job.
   cron: name="Update DNS" minute="*/5" job="/root/.rsdns/rs_dns.sh >>/var/log/cronrun 2>&1"

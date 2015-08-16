@@ -1,0 +1,3 @@
+# Holds defaults for all distros
+---
+ssh_service_name: ssh

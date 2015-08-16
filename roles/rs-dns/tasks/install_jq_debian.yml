@@ -1,0 +1,3 @@
+---
+- name: install jq
+  apt: pkg=jq state=latest

@@ -1,6 +1,23 @@
 ---
-- name: Install Vim
-  apt: pkg=vim state=latest
+- name: set distro-specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - default.yml
+
+- name: Install Packages Debian Based
+  apt: pkg={{ item }} state=latest
+  with_items:
+    - vim
+    - fail2ban
+  when: ansible_distribution == "Ubuntu"
+
+- name: Install Packages Fedora
+  dnf: pkg={{ item }} state=latest
+  with_items:
+    - vim
+    - fail2ban
+  when: ansible_distribution == "Fedora"
 
 - name: Add .vimrc
   copy: src=vimrc dest=/root/.vimrc
@@ -12,25 +29,19 @@
     - "public_keys/evan_rax_mac.pub"
     - "public_keys/travis_personal_mbp.pub"
 
-- name: Install fail2ban
-  apt: pkg=fail2ban state=latest
-
-- name: Write fail2ban config file.
-  template: src="fail2ban/jail.conf.j2" dest=/etc/fail2ban/jail.conf
+- name: Write fail2ban config file for proper ssh port..
+  lineinfile: dest=/etc/fail2ban/jail.conf regexp="^port.+=\sssh" line="port    ={{ ssh_port }}" 
   notify:
     - restart fail2ban
 
 - name: Ensure fail2ban is running
   service: name=fail2ban state=started
 
-- name: Write openssh config file. Yay key based auth..
+- name: Write openssh config file.(Ubuntu) Yay key based auth..
   template: src="openssh/sshd_config.j2" dest=/etc/ssh/sshd_config
   register: ssh_config
-  
-
-- name: restart sshd
-  command: service ssh restart
-  when: ssh_config|changed
+  notify:
+    - restart ssh
 
 - name: Create New Metadata Fact
   set_fact:

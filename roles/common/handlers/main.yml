@@ -1,3 +1,7 @@
 ---
 - name: restart fail2ban
   service: name=fail2ban state=restarted
+
+- name: restart ssh
+  service: name={{ ssh_service_name }} state=restarted
+  when: ssh_config|changed

@@ -1,0 +1,10 @@
+# Note that using the rs-dns role will require a service user with RAX.
+---
+- name: Bootstrap all Sample Compute.
+  hosts: sample
+  vars:
+    ansible_ssh_user: root
+    ssh_port: 443
+  roles:
+    - { role: common }
+    - { role: rs-dns }

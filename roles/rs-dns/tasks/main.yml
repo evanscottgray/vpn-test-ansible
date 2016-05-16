@@ -10,14 +10,14 @@
 
 - name: install reqs debian
   include: install_jq_debian.yml
-  when: ansible_distribution == "Ubuntu"
+  when: ansible_distribution == "Ubuntu" and "rpi" not in ansible_hostname
 
 - name: install jq rhel
   include: install_jq_rhel.yml
-  when: ansible_distribution == "Fedora"
+  when: ansible_distribution == "Fedora" and "rpi" not in ansible_hostname
 
-
-
+  # TODO (evanscottgray) write task to install jq on RPI
+  
 - name: insert rs_dns cron job.
   cron: name="Update DNS" minute="*/5" job="/root/.rsdns/rs_dns.sh >>/var/log/cronrun 2>&1"
 

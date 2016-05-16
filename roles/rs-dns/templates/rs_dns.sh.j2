@@ -30,10 +30,12 @@ if [ -z "$2" ]; then
         IP_ADDR=$(/sbin/ifconfig en0 | grep 'inet ' | cut -d ' ' -f 2)
     # RHEL / etc
     elif [[ "$OSTYPE" == "linux-gnu" ]]; then
-        IP_ADDR=$(/usr/sbin/ip -o -4 addr show dev eth0 | awk {'print $4'} | cut -d '/'  -f 1)
+        GW_DEV=$(netstat -rn | egrep "0.0.0.0.+0.0.0.0" | awk -F " " '{print $NF}')
+        IP_ADDR=$(/usr/sbin/ip -o -4 addr show dev $GW_DEV | awk {'print $4'} | cut -d '/'  -f 1)
     # all else
     else
-        IP_ADDR=$(/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+        GW_DEV=$(netstat -rn | egrep "0.0.0.0.+0.0.0.0" | awk -F " " '{print $NF}')
+        IP_ADDR=$(/sbin/ifconfig $GW_DEV | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
     fi
 
     echo "FOUND |$IP_ADDR| for (en|eth)0"
